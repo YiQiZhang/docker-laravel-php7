@@ -6,9 +6,9 @@ ENV PHP_SOURCE_DIR /software/php/
 ENV PHP_INSTALL_DIR /usr/local/php
 ENV MYSQL_SOCK /var/run/mysqld/mysqld.sock
 ENV PHP_USER php-fpm
-ENV PHP_CONFIG $(PHP_INSTALL_DIR)/lib/php.ini
-ENV PHP_FPM_CONFIG $(PHP_INSTALL_DIR)/etc/php-fpm.conf
-ENV PHP_FPM_WWW_CONFIG $(PHP_INSTALL_DIR)/etc/php-fpm.d/www.conf
+ENV PHP_CONFIG $PHP_INSTALL_DIR/lib/php.ini
+ENV PHP_FPM_CONFIG $PHP_INSTALL_DIR/etc/php-fpm.conf
+ENV PHP_FPM_WWW_CONFIG $PHP_INSTALL_DIR/etc/php-fpm.d/www.conf
 
 
 # install dependencies
@@ -80,20 +80,24 @@ RUN cd $PHP_SOURCE_DIR && \
 	--enable-fpm \
 	&& make && make install
 
-# copy configure
-ADD conf/php.ini $PHP_CONFIG
-ADD conf/php-fpm.conf $PHP_FPM_CONFIG
-ADD conf/php-fpm-www.conf $PHP_FPM_WWW_CONFIG
 
 # make softlink
-ln -s $PHP_INSTALL_DIR/bin/php /usr/sbin/php 
-ln -s $PHP_INSTALL_DIR/bin/php-fpm /usr/sbin/php-fpm 
+RUN ln -s $PHP_INSTALL_DIR/bin/php /usr/local/bin/php 
+RUN ln -s $PHP_INSTALL_DIR/sbin/php-fpm /usr/local/bin/php-fpm 
+
+# copy configure
+COPY conf/php.ini $PHP_CONFIG
+COPY conf/php-fpm.conf $PHP_FPM_CONFIG
+COPY conf/php-fpm-www.conf $PHP_FPM_WWW_CONFIG
 
 # install supervisor
 RUN apt-get install -y supervisor
 
 # install composer
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin
+
 # install phpunit
+
 
 # clean cache
 RUN apt-get clean \
@@ -103,4 +107,5 @@ RUN apt-get clean \
 # amount the pid volume
 VOLUME ["/var/run"]
 
-ENTRYPOINT [ "php-fpm" ]
+#ENTRYPOINT [ "php-fpm", "--nodaemonize" ]
+ENTRYPOINT [ "bin/bash" ]
