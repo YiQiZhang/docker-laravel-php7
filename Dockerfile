@@ -80,6 +80,8 @@ RUN cd $PHP_SOURCE_DIR && \
 	--enable-fpm \
 	&& make && make install
 
+# install supervisor
+RUN apt-get install -y supervisor
 
 # make softlink
 RUN ln -s $PHP_INSTALL_DIR/bin/php /usr/local/bin/php 
@@ -90,22 +92,21 @@ COPY conf/php.ini $PHP_CONFIG
 COPY conf/php-fpm.conf $PHP_FPM_CONFIG
 COPY conf/php-fpm-www.conf $PHP_FPM_WWW_CONFIG
 
-# install supervisor
-RUN apt-get install -y supervisor
-
 # install composer
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin
+RUN curl -sS http://install.phpcomposer.com/installer | sudo php -- --install-dir=/usr/local/bin --filename=composer
 
 # install phpunit
 
+# copy other config
+COPY conf/supervisor/ /etc/supervisor/conf.d/
 
 # clean cache
 RUN apt-get clean \
 	&& apt-get autoclean \
 	&& rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /software
 
-# amount the pid volume
-VOLUME ["/var/run"]
+EXPOSE 9000
 
-#ENTRYPOINT [ "php-fpm", "--nodaemonize" ]
-ENTRYPOINT [ "bin/bash" ]
+COPY scripts/start.sh /scripts/start.sh
+ENTRYPOINT [ "/scripts/start.sh" ]
+#ENTRYPOINT [ "bin/bash" ]
