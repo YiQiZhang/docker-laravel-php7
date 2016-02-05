@@ -2,7 +2,12 @@ FROM jerrytechtree/docker-laravel-base
 MAINTAINER Jerry Zhang "jerry_techtree@126.com"
 ENV REFRESHED_AT 2016-02-03
 
-ENV PHP_SOURCE_DIR /software/php/
+ENV PHP_VERSION 7.0.2
+ENV PHP_TAR_FILENAME php-$PHP_VERSION.tar.gz
+ENV PHP_DOWNLOAD_URL http://cn2.php.net/get/$PHP_TAR_FILENAME/from/this/mirror
+ENV SOFTWARE_DIR /software
+ENV PHP_TAR_FILE $SOFTWARE_DIR/$PHP_TAR_FILENAME
+ENV PHP_SOURCE_DIR $SOFTWARE_DIR/php
 ENV PHP_INSTALL_DIR /usr/local/php
 ENV MYSQL_SOCK /var/run/mysqld/mysqld.sock
 ENV PHP_USER php-fpm
@@ -35,8 +40,10 @@ RUN apt-get update && apt-get install -y \
 	libxml2-dev \
 	libxslt1-dev
 
-ADD software/php.tar.gz $PHP_SOURCE_DIR 
-RUN cp -r $PHP_SOURCE_DIR/php-*/* $PHP_SOURCE_DIR
+# download php source code
+RUN curl $PHP_DOWNLOAD_URL -o $PHP_TAR_FILE && \
+	tar -zxvf $PHP_TAR_FILE -C $SOFTWARE_DIR && \
+	mv $SOFTWARE_DIR/php-$PHP_VERSION $PHP_SOURCE_DIR	
 
 # add user & group
 RUN groupadd -r $PHP_USER && \
