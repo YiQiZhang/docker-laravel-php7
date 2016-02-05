@@ -43,7 +43,6 @@ RUN apt-get update && apt-get install -y \
 # download php source code
 RUN mkdir -p $SOFTWARE_DIR && \
 	curl -L $PHP_DOWNLOAD_URL > $PHP_TAR_FILE && \
-	mkdir -p $SOFTWARE_DIR && \
 	tar -zxvf $PHP_TAR_FILE -C $SOFTWARE_DIR && \
 	mv $SOFTWARE_DIR/php-$PHP_VERSION $PHP_SOURCE_DIR	
 
