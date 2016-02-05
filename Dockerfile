@@ -4,7 +4,7 @@ ENV REFRESHED_AT 2016-02-03
 
 ENV PHP_VERSION 7.0.2
 ENV PHP_TAR_FILENAME php-$PHP_VERSION.tar.gz
-ENV PHP_DOWNLOAD_URL http://cn2.php.net/get/$PHP_TAR_FILENAME/from/this/mirror
+ENV PHP_DOWNLOAD_URL "http://cn2.php.net/get/$PHP_TAR_FILENAME/from/this/mirror"
 ENV SOFTWARE_DIR /software
 ENV PHP_TAR_FILE $SOFTWARE_DIR/$PHP_TAR_FILENAME
 ENV PHP_SOURCE_DIR $SOFTWARE_DIR/php
@@ -41,7 +41,9 @@ RUN apt-get update && apt-get install -y \
 	libxslt1-dev
 
 # download php source code
-RUN curl $PHP_DOWNLOAD_URL -o $PHP_TAR_FILE && \
+RUN mkdir -p $SOFTWARE_DIR && \
+	curl -L $PHP_DOWNLOAD_URL > $PHP_TAR_FILE && \
+	mkdir -p $SOFTWARE_DIR && \
 	tar -zxvf $PHP_TAR_FILE -C $SOFTWARE_DIR && \
 	mv $SOFTWARE_DIR/php-$PHP_VERSION $PHP_SOURCE_DIR	
 
